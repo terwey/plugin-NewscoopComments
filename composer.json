@@ -1,0 +1,20 @@
+{
+    "name": "terwey/plugin-NewscoopComments",
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Yorick Terweijden",
+            "email": "yorick.terweijden@sourcefabric.org"
+        }
+    ],
+    "require": {
+        "php":	">=5.3",
+        "newscoop/plugins-installer": "*",
+        "friendsofsymfony/comment-bundle": "dev-master"
+    },
+    "autoload": {
+        "psr-0": { "Newscoop\\CommentsBundle\\CommentsBundle": "" }
+    },
+    "target-dir": "Newscoop/CommentsBundle",
+    "minimum-stability": "dev"
+}
