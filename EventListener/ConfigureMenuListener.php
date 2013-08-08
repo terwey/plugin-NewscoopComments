@@ -1,5 +1,5 @@
 <?php
-namespace Newscoop\NewscoopCommentsBundle\EventListener;
+namespace Newscoop\CommentsBundle\EventListener;
 
 use Newscoop\NewscoopBundle\Event\ConfigureMenuEvent;
 

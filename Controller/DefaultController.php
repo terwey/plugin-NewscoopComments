@@ -1,6 +1,6 @@
 <?php
 
-namespace Newscoop\NewscoopCommentsBundle\Controller;
+namespace Newscoop\CommentsBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;

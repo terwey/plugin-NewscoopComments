@@ -14,8 +14,8 @@
         "friendsofsymfony/comment-bundle": "dev-master"
     },
     "autoload": {
-        "psr-0": { "Newscoop\\NewscoopCommentsBundle\\NewscoopCommentsBundle": "" }
+        "psr-0": { "Newscoop\\CommentsBundle": "" }
     },
-    "target-dir": "Newscoop/NewscoopCommentsBundle",
+    "target-dir": "Newscoop/CommentsBundle",
     "minimum-stability": "dev"
 }

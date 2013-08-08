@@ -1,6 +1,6 @@
 <?php
 
-namespace Newscoop\NewscoopCommentsBundle;
+namespace Newscoop\CommentsBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 

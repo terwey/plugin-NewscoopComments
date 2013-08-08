@@ -1,6 +1,6 @@
 <?php
 
-namespace Newscoop\NewscoopCommentsBundle\DependencyInjection;
+namespace Newscoop\CommentsBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
