@@ -1,6 +1,6 @@
 <?php
 
-namespace Newscoop\CommentsBundle\DependencyInjection;
+namespace Newscoop\NewscoopCommentsBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Loader;
  *
  * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html}
  */
-class CommentsExtension extends Extension
+class NewscoopCommentsExtension extends Extension
 {
     /**
      * {@inheritDoc}

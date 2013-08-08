@@ -1,9 +1,9 @@
 <?php
 
-namespace Newscoop\CommentsBundle;
+namespace Newscoop\NewscoopCommentsBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class CommentsBundle extends Bundle
+class NewscoopCommentsBundle extends Bundle
 {
 }

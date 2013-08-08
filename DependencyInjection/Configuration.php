@@ -1,6 +1,6 @@
 <?php
 
-namespace Newscoop\CommentsBundle\DependencyInjection;
+namespace Newscoop\NewscoopCommentsBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;

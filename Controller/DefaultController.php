@@ -1,6 +1,6 @@
 <?php
 
-namespace Newscoop\CommentsBundle\Controller;
+namespace Newscoop\NewscoopCommentsBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -14,7 +14,7 @@ class DefaultController extends Controller
      */
     public function indexAction(Request $request)
     {
-        return $this->render('CommentsBundle:Default:index.html.smarty');
+        return $this->render('NewscoopCommentsBundle:Default:index.html.smarty');
     }
 
     /**
