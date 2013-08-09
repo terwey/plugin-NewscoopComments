@@ -1,5 +1,5 @@
 services:
-    comments.configure_menu_listener:
+    newscoop_comments.configure_menu_listener:
         class: Newscoop\CommentsBundle\EventListener\ConfigureMenuListener
         tags:
           - { name: kernel.event_listener, event: newscoop_newscoop.menu_configure, method: onMenuConfigure }
