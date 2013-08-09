@@ -14,7 +14,7 @@ class ConfigureMenuListener
 
         $menu[getGS('Plugins')]->addChild(
         	'Comments Plugin', 
-        	array('uri' => $event->getRouter()->generate('newscoop_commentsplugin_default_admin'))
+        	array('uri' => $event->getRouter()->generate('newscoop_comments_default_admin'))
         );
     }
 }
