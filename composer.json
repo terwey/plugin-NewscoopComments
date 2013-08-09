@@ -1,6 +1,7 @@
 {
-    "name": "terwey/plugin-NewscoopComments",
+    "name": "terwey/plugin-newscoop-comments",
     "license": "GPL-3.0",
+    "type": "newscoop-plugin",
     "authors": [
         {
             "name": "Yorick Terweijden",
