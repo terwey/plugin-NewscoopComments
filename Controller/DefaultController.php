@@ -14,15 +14,15 @@ class DefaultController extends Controller
      */
     public function indexAction(Request $request)
     {
-        return $this->render('CommentsBundle:Default:index.html.smarty');
+        // return $this->render('CommentsBundle:Default:index.html.smarty');
+        return array();
     }
 
     /**
      * @Route("/admin/comments_plugin")
-     * @Template()
      */
     public function adminAction(Request $request)
     {
-    	return array();
+        return $this->render('NewscoopCommentsBundle:Default:admin.html.twig');
     }
 }
