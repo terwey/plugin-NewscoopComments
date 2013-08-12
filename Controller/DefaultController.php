@@ -14,7 +14,7 @@ class DefaultController extends Controller
      */
     public function indexAction(Request $request)
     {
-        return $this->render('NewscoopCommentsBundle:Default:index.html.smarty');
+        return $this->render('CommentsBundle:Default:index.html.smarty');
     }
 
     /**
