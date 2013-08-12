@@ -1,4 +1,4 @@
 newscoop_comments::
-    resource: "@CommentsBundle/Controller/DefaultController.php"
+    resource: "@NewscoopCommentsBundle/Controller/DefaultController.php"
     type:     annotation
     prefix:   /
