@@ -1,4 +1,10 @@
-newscoop_comments::
+newscoop_comments:
     resource: "@NewscoopCommentsBundle/Controller/DefaultController.php"
     type:     annotation
     prefix:   /
+
+fos_comment_api:
+    type: rest
+    resource: "@FOSCommentBundle/Resources/config/routing.yml"
+    prefix: /api
+    defaults: { _format: html }

@@ -3,4 +3,9 @@
 {% block admin_title %}Nested Comments{% endblock %}
 {% block admin_page_title_content %}Nested comments{% endblock %}
 
-{% block admin_content %}Nested comments content{% endblock %}
+{% block admin_content %} 
+Nested comments content
+
+{% include 'FOSCommentBundle:Thread:async.html.twig' with {'id': 'foo'} %}
+
+{% endblock %}
