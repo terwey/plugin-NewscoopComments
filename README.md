@@ -10,3 +10,17 @@ public function registerBundles()
 	);
 }
 ```
+
+in `application/configs/symfony/config.yml` add:
+
+```
+fos_comment:
+    db_driver: orm
+    class:
+        model:
+            comment: Newscoop\CommentsBundle\Entity\Comment
+            thread: Newscoop\CommentsBundle\Entity\Thread
+
+assetic:
+    bundles: [ "FOSCommentBundle" ]
+```
