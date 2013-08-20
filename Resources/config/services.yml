@@ -3,3 +3,12 @@ services:
         class: Newscoop\CommentsBundle\EventListener\ConfigureMenuListener
         tags:
           - { name: kernel.event_listener, event: newscoop_newscoop.menu_configure, method: onMenuConfigure }
+
+    newscoop_comments.form.service.class:
+        class: Newscoop\CommentsBundle\Services\FormService
+        arguments: ["@em"]
+
+    newscoop_comments.form.type.commentform:
+       class: Newscoop\CommentsBundle\Form\Type\CommentType
+       tags:
+           - { name: form.type, alias: commentform }

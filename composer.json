@@ -10,8 +10,7 @@
     ],
     "require": {
         "php":	">=5.3",
-        "newscoop/plugins-installer": "*",
-        "friendsofsymfony/comment-bundle": "dev-master"
+        "newscoop/plugins-installer": "*"
     },
     "autoload": {
         "psr-0": { "Newscoop\\CommentsBundle": "" }
