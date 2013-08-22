@@ -4,7 +4,7 @@ services:
         tags:
           - { name: kernel.event_listener, event: newscoop_newscoop.menu_configure, method: onMenuConfigure }
 
-    newscoop_comments.form.service.class:
+    newscoop_comments.form.service:
         class: Newscoop\CommentsBundle\Services\FormService
         arguments: ["@em"]
 
