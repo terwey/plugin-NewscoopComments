@@ -6,9 +6,16 @@ services:
 
     newscoop_comments.form.service:
         class: Newscoop\CommentsBundle\Services\FormService
-        arguments: ["@em"]
+        arguments: ["@em", "@security.context", "@form.factory"]
 
     newscoop_comments.form.type.commentform:
        class: Newscoop\CommentsBundle\Form\Type\CommentType
        tags:
            - { name: form.type, alias: commentform }
+
+    newscoop_comments.listener.comment_listener:
+        class: Newscoop\CommentsBundle\EventListener\CommentListener
+        tags:
+            # - { name: comment.event_listener, event: comment.submit, method: onCommentSubmit }
+            - { name: kernel.event_listener, event: kernel.request, method: onCommentSubmit }
+        arguments: ["@logger", "@em"]

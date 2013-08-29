@@ -10,9 +10,9 @@ class CommenterType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('name', 'text');
-        $builder->add('email', 'email');
-        $builder->add('url', 'url');
+        // $builder->add('name', 'text');
+        // $builder->add('email', 'email');
+        // $builder->add('url', 'url');
     }
 
     public function getName()

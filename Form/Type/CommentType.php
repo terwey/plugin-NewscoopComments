@@ -10,16 +10,6 @@ class CommentType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        // var_dump($builder);
-        // var_dump($options);
-        $builder->add('commenter', new CommenterType());
-        $builder->add('subject', 'text');
-        $builder->add('message', 'textarea');
-        $builder->add("email_protect", "text", array(
-        "mapped" => false,
-        "constraints" => Blank,
-        "required" => false,
-        "max_length" => 20));
         $builder->add('save', 'submit');
     }
 

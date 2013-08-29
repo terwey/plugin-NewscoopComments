@@ -1,0 +1,9 @@
+Newscoop\Entity\Comment:
+    properties:
+        ip:
+            - NotBlank:
+            - Newscoop\CommentsBundle\Validator\Constraints\IPIsAllowed:
+Newscoop\Entity\Comment\Commenter:
+    properties:
+        email:
+            - Newscoop\CommentsBundle\Validator\Constraints\EmailIsAllowed:
