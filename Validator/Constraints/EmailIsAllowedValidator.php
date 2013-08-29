@@ -6,6 +6,15 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class EmailIsAllowedValidator extends ConstraintValidator
 {
+    private $em;
+
+    public function __construct(EntityManager $em)
+    {
+        var_dump(__METHOD__);
+        var_dump($em);
+        $this->em = $em;
+    }
+
     public function validate($value, Constraint $constraint)
     {
         // $repositoryAcceptance = \Zend_Registry::get('container')->getHelper('entity')->getRepository('Newscoop\Entity\Comment\Acceptance');

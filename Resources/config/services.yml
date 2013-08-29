@@ -19,3 +19,9 @@ services:
             # - { name: comment.event_listener, event: comment.submit, method: onCommentSubmit }
             - { name: kernel.event_listener, event: kernel.request, method: onCommentSubmit }
         arguments: ["@logger", "@em"]
+
+    newscoop_comments.validator.ip_is_allowed:
+        class: Newscoop\CommentsBundle\Validator\Constraints\IPIsAllowedValidator
+        tags:
+            - { name: validator.constraint_validator, alias: ipisallowed }
+        arguments: ["@em"]

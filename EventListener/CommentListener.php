@@ -48,11 +48,10 @@ class CommentListener
         // var_dump($formService->handleRequest($request));
 
         if ($request->getMethod() == 'POST') {
-
             // get the field names
             $commentForm = $request->get('commentForm');
             if (is_array($commentForm)) {
-                // var_dump($commentForm);
+                // get the fieldnames
                 $commentFormFields = array();
                 foreach ($commentForm as $key => $value) {
                     if ($key == 'commenter') {
@@ -73,8 +72,18 @@ class CommentListener
 
                 if ($form->isValid()) {
                     var_dump('Form is valid!');
+                    $comment = $form->getData();
+                    $comment->setParent($this->em->getRepository('Newscoop\Entity\Comment')->findOneById(9));
+                    var_dump($comment);
+                    $comment->setThreadLevel($comment->getParent()->getThreadLevel() + 1);
+                    $comment->setThreadOrder($comment->getParent()->getThreadOrder() + 1);
+                    $comment->setStatus('approved');
+                    $this->em->persist($comment);
+                    $this->em->flush();
                 } else {
                     var_dump($form->getErrors());
+                    // $comment = $form->getData();
+                    // var_dump($comment);
                     var_dump('Form is invalid!');
                 }
 
@@ -82,15 +91,6 @@ class CommentListener
                 // var_dump($request);
                 $parameters = $request->request;
                 var_dump($parameters);
-
-                $publicationId = $request->get('_newscoop_publication_metadata')['alias']['publication_id'];
-                var_dump($publicationId);
-                // $this->publication = new Publication($publicationId);
-                $this->captchaEnabled = $this->em->getRepository('Newscoop\Entity\Publication')
-                                    ->findOneById($publicationId)->getCaptchaEnabled();
-                // var_dump($this->publication);
-                var_dump($this->captchaEnabled);
-                $articleID = $request->get('_newscoop_article_metadata')['id'];
             }
 
         }

@@ -9,4 +9,9 @@ use Symfony\Component\Validator\Constraint;
 class IPIsAllowed extends Constraint
 {
     public $message = 'The IP is banned from posting.';
+
+    public function validatedBy()
+    {
+        return 'ipisallowed';
+    }
 }

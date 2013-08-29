@@ -41,6 +41,7 @@ class FormService implements FormServiceInterface
     private $email;
     private $url;
 
+    private $captchaEnabled;
     private $recaptcha;
 
     private $formStart;
@@ -55,10 +56,7 @@ class FormService implements FormServiceInterface
     
     public function __construct(EntityManager $em, SecurityContext $securityContext, FormFactory $formFactory)
     {
-        // var_dump('constructer!');
-        // var_dump(md5(spl_object_hash($this)));
         $this->securityContext = $securityContext;
-        // var_dump($this->securityContext);
         $this->formFactory = $formFactory;
         $this->em = $em;
     }
@@ -66,6 +64,7 @@ class FormService implements FormServiceInterface
     public function config(array $parameters = array(), Request $request = null)
     {
         $this->request = $request;
+
         $zendAuth = \Zend_Auth::getInstance();
         if ($zendAuth->hasIdentity()) {
             $userId = $zendAuth->getIdentity();
@@ -74,34 +73,40 @@ class FormService implements FormServiceInterface
             $user = $userRepository->findOneBy(array('id'=>$userId));
         }
 
-        // $token = $this->securityContext->getToken();
-        // $user = $token->getUser();
-
-
+        // var_dump($request);
+        $publicationId = $request->get('_newscoop_publication_metadata')['alias']['publication_id'];
+        $publication = $this->em->getRepository('Newscoop\Entity\Publication')->findOneBy(array('id'=>$publicationId));
+        $articleMetadata = $request->get('_newscoop_article_metadata');
 
         $comment = new Comment();
-        // if (!is_null($this->request)) {
-        //     $comment->setIp($this->request->getClientIp()); // set the IP
-        // }
-        // if (!is_null($user)) {
-        //     $commenterRepository = $this->em->getRepository('Newscoop\Entity\Comment\Commenter');
-        //     $commenter = $commenterRepository->findOneBy(array('user'=>$user));
-        //     if (is_null($commenter)) {
-        //         $commenter = new Commenter();
-        //         $commenter->setName($user->getName());
-        //         $commenter->setEmail($user->getEmail());
-        //         if (!is_null($this->request)) {
-        //             $commenter->setIp($this->request->getClientIp());
-        //         }
-        //         $commenter->setUser($user);
-        //     }
-        //     $comment->setCommenter($commenter);
-        // }
+        $comment->setForum($this->em->getRepository('Newscoop\Entity\Publication')->findOneBy(array('id'=>$publicationId)));
+        $comment->setThread($this->em->getRepository('Newscoop\Entity\Article')->getArticle($articleMetadata['id'], $articleMetadata['language_id'])->getOneOrNullResult());
+        $comment->setIp($this->request->getClientIp());
 
-
+        if (!is_null($user)) {
+            $commenterRepository = $this->em->getRepository('Newscoop\Entity\Comment\Commenter');
+            $commenter = $commenterRepository->findOneBy(array('user'=>$user));
+            if (is_null($commenter)) {
+                $commenter = new Commenter();
+                $commenter->setName($user->getName());
+                $commenter->setEmail($user->getEmail());
+                if (!is_null($this->request)) {
+                    $commenter->setIp($this->request->getClientIp());
+                }
+                $commenter->setUser($user);
+                $commenter->setUrl('');
+            }
+            $comment->setCommenter($commenter);
+        }
 
         $this->form = $this->formFactory->create(new CommentType(), $comment);
 
+        if (in_array('commentparent', $parameters)) {
+            $this->form->add("commentparent", "text", array(
+                    "mapped" => false,
+                    "required" => false,
+            ));
+        }
 
         if (in_array('subject', $parameters)) {
             $this->form->add('subject', 'text');
@@ -125,47 +130,35 @@ class FormService implements FormServiceInterface
             }
         }
 
-
         if (in_array('spam_protect', $parameters) || in_array('email_protect', $parameters)) {
-            $this->form->add(
-                "email_protect",
-                "text",
-                array(
+            $this->form->add("email_protect", "text", array(
                     "mapped" => false,
                     "constraints" => array(
                         new \Symfony\Component\Validator\Constraints\Blank()
                     ),
                     "required" => false,
                     "max_length" => 20
-                )
-            );
+            ));
         }
-
-        if (in_array('recaptcha', $parameters) || in_array('captcha', $parameters)) {
-            $this->form->add('recaptcha', 'ewz_recaptcha',
-                array(
-                    "mapped" => false,
-                    'constraints'   => array(
-                        new \EWZ\Bundle\RecaptchaBundle\Validator\Constraints\True()
-                    )
-                    ));
-            // var_dump($this->form);
-        }
-
-
-        // if (!($this->formHelper instanceof Symfony\Bundle\FrameworkBundle\Templating\Helper\FormHelper)) {
-            $this->formHelper = \Zend_Registry::get('container')->getService('templating.helper.form');
-        // }
-
-        if (!is_null($this->request)) {
-            if ($this->request->getMethod() == 'POST') {
-                $this->form->handleRequest($this->request);
+        $this->captchaEnabled = $this->em->getRepository('Newscoop\Entity\Publication')->findOneById($publicationId)->getCaptchaEnabled();
+        if ($this->captchaEnabled) {
+            if (in_array('recaptcha', $parameters) || in_array('captcha', $parameters)) {
+                $this->form->add('recaptcha', 'ewz_recaptcha', array(
+                        "mapped" => false,
+                        'constraints'   => array(
+                            new \EWZ\Bundle\RecaptchaBundle\Validator\Constraints\True()
+                        )
+                ));
             }
         }
 
-        // if (!($this->formView instanceof Symfony\Component\Form\FormView)) {
-            $this->formView = $this->form->createView();
-        // }
+        $this->formHelper = \Zend_Registry::get('container')->getService('templating.helper.form');
+
+        if ($this->request->getMethod() == 'POST') {
+            $this->form->handleRequest($this->request);
+        }
+
+        $this->formView = $this->form->createView();
     }
 
     public function getElement($elementName, array $options = array())
@@ -174,10 +167,11 @@ class FormService implements FormServiceInterface
             $elementName = ($elementName == 'content') ? 'message' : $elementName;
             $elementName = ($elementName == 'spam_protect') ? 'email_protect' : $elementName;
             $elementName = ($elementName == 'captcha') ? 'recaptcha' : $elementName;
-            $allowedElementsGeneral = array('message', 'subject', 'save', 'email_protect', 'recaptcha');
+            // $elementName = ($elementName == 'parent') ? 'commentparent' : $elementName;
+            
+            $allowedElementsGeneral = array('message', 'subject', 'save', 'email_protect', 'recaptcha', 'commentparent');
             $allowedElementsCommenter = array('name', 'email', 'url');
             $outputType = (!empty($options['label'])) ? 'row' : 'widget';
-            // $outputType = ($elementName == 'email_protect') ? 'row' : $outputType;
             if (in_array($elementName, $allowedElementsGeneral)  || in_array($elementName, $allowedElementsCommenter)) {
                 if (empty($this->$elementName)) {
                     if (in_array($elementName, $allowedElementsCommenter)) {
@@ -187,10 +181,14 @@ class FormService implements FormServiceInterface
                             $this->$elementName = $this->formHelper->$outputType($this->formView['commenter'][$elementName]);
                         }
                     } else {
-                        if (!empty($options)) {
-                            $this->$elementName = $this->formHelper->$outputType($this->formView[$elementName], $options);
+                        if (!$this->captchaEnabled && $elementName == 'recaptcha') {
+                            $this->$elementName = '<!-- ReCaptcha disabled in the Publication -->';
                         } else {
-                            $this->$elementName = $this->formHelper->$outputType($this->formView[$elementName]);
+                            if (!empty($options)) {
+                                $this->$elementName = $this->formHelper->$outputType($this->formView[$elementName], $options);
+                            } else {
+                                $this->$elementName = $this->formHelper->$outputType($this->formView[$elementName]);
+                            }
                         }
                     }
                 }

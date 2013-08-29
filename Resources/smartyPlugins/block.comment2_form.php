@@ -31,6 +31,7 @@ function smarty_block_comment2_form($params, $content, &$smarty, &$repeat)
     $context = $smarty->getTemplateVars('gimme');
 
     $request = \Zend_Registry::get('container')->getService('request');
+    // var_dump($request);
     // smarty processes the $content after the second call
     // this means that the first time we have to configure and set the formStart
     if ($repeat) {
@@ -43,7 +44,7 @@ function smarty_block_comment2_form($params, $content, &$smarty, &$repeat)
                     var_dump($formService->getErrors());
                 }
             } else {
-                $formService->config($params['fields']);
+                $formService->config($params['fields'], $request);
             }
             
             if (!$formService instanceof Newscoop\CommentsBundle\Services\FormService) {
