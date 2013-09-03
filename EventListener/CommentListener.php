@@ -73,11 +73,119 @@ class CommentListener
                 if ($form->isValid()) {
                     var_dump('Form is valid!');
                     $comment = $form->getData();
-                    $comment->setParent($this->em->getRepository('Newscoop\Entity\Comment')->findOneById(9));
-                    var_dump($comment);
-                    $comment->setThreadLevel($comment->getParent()->getThreadLevel() + 1);
-                    $comment->setThreadOrder($comment->getParent()->getThreadOrder() + 1);
-                    $comment->setStatus('approved');
+
+                    $threadLevel = 0;
+                    $threadOrder = 0;
+
+                    if (is_null($comment->getCommenter()->getUser()) || is_null($comment->getCommenter()->getId())) {
+                        $commenterRepository = $this->em->getRepository('Newscoop\Entity\Comment\Commenter');
+
+                        $commenter = $commenterRepository->findOneBy(array(
+                                'name' =>$comment->getCommenter()->getName(),
+                                'email' =>$comment->getCommenter()->getEmail(),
+                                'ip'    =>$comment->getCommenter()->getIp()
+                        ));
+
+                        if (!is_null($commenter)) {
+                            $comment->setCommenter($commenter);
+                        } else {
+                            $commenter = $commenterRepository->findOneBy(array(
+                                    'email' =>$comment->getCommenter()->getEmail(),
+                                    'ip'    =>$comment->getCommenter()->getIp()
+                                    ));
+                            if (!is_null($commenter)) {
+                                $comment->setCommenter($commenter);
+                            }
+                        }
+                    }
+
+                    if (array_key_exists('commentparent', $request->get('commentForm'))) {
+                        if (!empty($request->get('commentForm')['commentparent'])) {
+                            $parent = $this->em->getRepository('Newscoop\Entity\Comment')->findOneById(intval($request->get('commentForm')['commentparent']));
+                            // var_dump($parent);
+                            if ($parent instanceof Newscoop\Entity\Comment) {
+                                var_dump($parent);
+                                $comment->setParent($parent);
+                                $qb = $this->em->getRepository('Newscoop\Entity\Comment')->createQueryBuilder('c');
+
+                                // get the maximum thread order from the current parent
+                                $threadOrder =   $qb->select('MAX(c.thread_order)')
+                                                    ->andwhere('c.parent = :parent')
+                                                    ->andWhere('c.thread = :thread')
+                                                    ->andWhere('c.language = :language')
+                                                    ->setParameter('parent', $parent)
+                                                    ->setParameter('thread', $parent->getThread()->getId())
+                                                    ->setParameter('language', $parent->getLanguage()->getId())
+                                                    ->getQuery()
+                                                    ->getSingleScalarResult();
+
+                                // if the comment parent doesn't have children then use the parent thread order
+                                if (empty($threadOrder)) {
+                                    $threadOrder = $parent->getThreadOrder();
+                                }
+
+                                $threadOrder += 1;
+
+                                /**
+                                * update all the comment for the thread where thread order is less or equal
+                                * of the current thread_order
+                                */
+                                // $qb->update()
+                                //     ->set('c.thread_order',  'c.thread_order+1')
+                                //     ->andwhere('c.thread_order >= :thread_order')
+                                //     ->andWhere('c.thread = :thread')
+                                //     ->andWhere('c.language = :language')
+                                //     ->setParameter('language', $parent->getLanguage()->getId())
+                                //     ->setParameter('thread', $parent->getThread()->getId())
+                                //     ->setParameter('thread_order', $threadOrder);
+                                // $qb->getQuery()->execute();
+
+                                // // set the thread level the thread level of the parent plus one the current level
+                                $threadLevel = $parent->getThreadLevel();
+                                $threadLevel += 1;
+                                
+                                var_dump('threadLevel: '.$threadLevel);
+                                var_dump('threadOrder: '.$threadOrder);
+                            }
+                        }
+                    } else {
+                        $qb = $this->em->getRepository('Newscoop\Entity\Comment')->createQueryBuilder('c');
+                        $threadOrder = $qb->select('MAX(c.thread_order)')
+                            ->where('c.thread = :thread')
+                            ->andWhere('c.language = :language')
+                            ->setParameter('thread', $thread->getNumber())
+                            ->setParameter('language', $language->getId())
+                            ->getQuery()
+                            ->getSingleScalarResult();
+
+                        // increase by one of the current comment
+                        // $threadOrder = $query->getSingleScalarResult() + 1;
+                        var_dump($threadOrder);
+                        $threadOrder += 1;
+                    }
+
+                    $comment->setThreadLevel($threadLevel);
+                    $comment->setThreadOrder($threadOrder);
+
+                    $publicationObj = $comment->getForum();
+                    // var_dump($publicationObj);
+
+                    $user = null;
+                    if ($comment->getCommenter() instanceof Newscoop\Entity\Commenter) {
+                        $user = $comment->getCommenter();
+                    }
+                    // var_dump($user);
+
+                    if ((!is_null($user) && $publicationObj->getCommentsSubscribersModerated())
+                    || (is_null($user) && $publicationObj->getCommentsPublicModerated())) {
+                        $comment->setStatus('pending');
+                    } else {
+                        $comment->setStatus('approved');
+                    }
+                    
+
+                    // var_dump($comment);
+
                     $this->em->persist($comment);
                     $this->em->flush();
                 } else {
@@ -94,18 +202,5 @@ class CommentListener
             }
 
         }
-    }
-
-    private static function ifEmptyReturnString($input) {
-        return (!empty($input) && !is_null($input)) ? $input : '';
-    }
-
-    private function processCaptcha()
-    {
-        if (!$this->captchaEnabled) {
-            //if the Captcha is not enabled always return true
-            return true;
-        }
-        return true;
     }
 }

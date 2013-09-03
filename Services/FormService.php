@@ -26,6 +26,7 @@ class FormService implements FormServiceInterface
 
     private $securityContext;
     private $em;
+    private $hasUser;
 
     private $formBuilder;
     private $comment;
@@ -66,6 +67,7 @@ class FormService implements FormServiceInterface
         $this->request = $request;
 
         $zendAuth = \Zend_Auth::getInstance();
+        $user = null;
         if ($zendAuth->hasIdentity()) {
             $userId = $zendAuth->getIdentity();
 
@@ -82,6 +84,7 @@ class FormService implements FormServiceInterface
         $comment->setForum($this->em->getRepository('Newscoop\Entity\Publication')->findOneBy(array('id'=>$publicationId)));
         $comment->setThread($this->em->getRepository('Newscoop\Entity\Article')->getArticle($articleMetadata['id'], $articleMetadata['language_id'])->getOneOrNullResult());
         $comment->setIp($this->request->getClientIp());
+        $comment->setLanguage($this->em->getRepository('Newscoop\Entity\Language')->findOneBy(array('id'=>$articleMetadata['language_id'])));
 
         if (!is_null($user)) {
             $commenterRepository = $this->em->getRepository('Newscoop\Entity\Comment\Commenter');
@@ -90,19 +93,24 @@ class FormService implements FormServiceInterface
                 $commenter = new Commenter();
                 $commenter->setName($user->getName());
                 $commenter->setEmail($user->getEmail());
-                if (!is_null($this->request)) {
-                    $commenter->setIp($this->request->getClientIp());
-                }
+                
                 $commenter->setUser($user);
-                $commenter->setUrl('');
+                // $commenter->setUrl('');
             }
-            $comment->setCommenter($commenter);
+            $this->hasUser = true;
+        } else {
+            $commenter = new Commenter();
+            $this->hasUser = false;
         }
+
+        
+        $commenter->setIp($this->request->getClientIp());
+        $comment->setCommenter($commenter);
 
         $this->form = $this->formFactory->create(new CommentType(), $comment);
 
         if (in_array('commentparent', $parameters)) {
-            $this->form->add("commentparent", "text", array(
+            $this->form->add("commentparent", "hidden", array(
                     "mapped" => false,
                     "required" => false,
             ));
@@ -119,14 +127,16 @@ class FormService implements FormServiceInterface
         if (in_array('name', $parameters) || in_array('email', $parameters) ||  in_array('url', $parameters)) {
             $this->form->add('commenter', new CommenterType());
             
-            if (in_array('name', $parameters)) {
-                $this->form->get('commenter')->add('name', 'text');
-            }
-            if (in_array('email', $parameters)) {
-                $this->form->get('commenter')->add('email', 'email');
-            }
-            if (in_array('url', $parameters)) {
-                $this->form->get('commenter')->add('url', 'url');
+            if (!$this->hasUser) {
+                if (in_array('name', $parameters)) {
+                    $this->form->get('commenter')->add('name', 'text');
+                }
+                if (in_array('email', $parameters)) {
+                    $this->form->get('commenter')->add('email', 'email');
+                }
+                if (in_array('url', $parameters)) {
+                    $this->form->get('commenter')->add('url', 'url');
+                }
             }
         }
 
@@ -175,10 +185,14 @@ class FormService implements FormServiceInterface
             if (in_array($elementName, $allowedElementsGeneral)  || in_array($elementName, $allowedElementsCommenter)) {
                 if (empty($this->$elementName)) {
                     if (in_array($elementName, $allowedElementsCommenter)) {
-                        if (!empty($options)) {
-                            $this->$elementName = $this->formHelper->$outputType($this->formView['commenter'][$elementName], $options);
+                        if (!$this->hasUser) {
+                            if (!empty($options)) {
+                                $this->$elementName = $this->formHelper->$outputType($this->formView['commenter'][$elementName], $options);
+                            } else {
+                                $this->$elementName = $this->formHelper->$outputType($this->formView['commenter'][$elementName]);
+                            }
                         } else {
-                            $this->$elementName = $this->formHelper->$outputType($this->formView['commenter'][$elementName]);
+                            $this->$elementName = '<!-- User is logged in -->';
                         }
                     } else {
                         if (!$this->captchaEnabled && $elementName == 'recaptcha') {
