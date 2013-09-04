@@ -9,20 +9,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 
-// define('ACTION_SUBMIT_COMMENT_ERR_INTERNAL', 'action_comment_submit_err_internal');
-// define('ACTION_SUBMIT_COMMENT_ERR_NO_SUBJECT', 'action_comment_submit_err_no_subject');
-// define('ACTION_SUBMIT_COMMENT_ERR_NO_CONTENT', 'action_comment_submit_err_no_content');
-// define('ACTION_SUBMIT_COMMENT_ERR_NO_ARTICLE', 'action_comment_submit_err_no_article');
-// define('ACTION_SUBMIT_COMMENT_ERR_NOT_ENABLED', 'action_comment_submit_err_not_enabled');
-// define('ACTION_SUBMIT_COMMENT_ERR_NO_EMAIL', 'action_comment_submit_err_no_email');
-// define('ACTION_SUBMIT_COMMENT_ERR_NO_PUBLIC', 'action_comment_submit_err_no_public');
-// define('ACTION_SUBMIT_COMMENT_ERR_NO_CAPTCHA_CODE', 'action_comment_submit_err_no_captcha_code');
-// define('ACTION_SUBMIT_COMMENT_ERR_INVALID_CAPTCHA_CODE', 'action_comment_submit_err_invalid_captcha_code');
-// define('ACTION_SUBMIT_COMMENT_ERR_BANNED', 'action_comment_submit_err_banned');
-// define('ACTION_SUBMIT_COMMENT_ERR_REJECTED', 'action_comment_submit_err_rejected');
-
-// require_once($GLOBALS['g_campsiteDir'].'/include/captcha/php-captcha.inc.php');
-
 class CommentListener
 {
     private $log;
@@ -41,11 +27,8 @@ class CommentListener
 
     public function onCommentSubmit(GetResponseEvent $event)
     {
-        // var_dump($event);
-        // die('listener, sup');
         $this->log->info('onCommentSubmit got fired!');
         $request = $event->getRequest();
-        // var_dump($formService->handleRequest($request));
 
         if ($request->getMethod() == 'POST') {
             // get the field names
@@ -68,10 +51,8 @@ class CommentListener
                 $formService = \Zend_Registry::get('container')->getService('newscoop_comments.form.service');
                 $formService->config($commentFormFields, $request);
                 $form = $formService->getFormObject();
-                var_dump($form->isValid());
 
                 if ($form->isValid()) {
-                    var_dump('Form is valid!');
                     $comment = $form->getData();
 
                     $threadLevel = 0;
@@ -103,6 +84,7 @@ class CommentListener
                         $parent = $this->em->getRepository('Newscoop\Entity\Comment')->findOneById(intval($request->get('commentForm')['commentparent']));
                         if ($parent instanceof \Newscoop\Entity\Comment) {
                             $comment->setParent($parent);
+                            
                             $qb = $this->em->getRepository('Newscoop\Entity\Comment')->createQueryBuilder('c');
 
                             // get the maximum thread order from the current parent
@@ -111,8 +93,8 @@ class CommentListener
                                                 ->andWhere('c.thread = :thread')
                                                 ->andWhere('c.language = :language')
                                                 ->setParameter('parent', $parent)
-                                                ->setParameter('thread', $parent->getThread()->getId())
-                                                ->setParameter('language', $parent->getLanguage()->getId())
+                                                ->setParameter('thread', $comment->getThread()->getId())
+                                                ->setParameter('language', $comment->getLanguage()->getId())
                                                 ->getQuery()
                                                 ->getSingleScalarResult();
 
@@ -127,17 +109,18 @@ class CommentListener
                             * update all the comment for the thread where thread order is less or equal
                             * of the current thread_order
                             */
-                            // $qb->update()
-                            //     ->set('c.thread_order',  'c.thread_order+1')
-                            //     ->andwhere('c.thread_order >= :thread_order')
-                            //     ->andWhere('c.thread = :thread')
-                            //     ->andWhere('c.language = :language')
-                            //     ->setParameter('language', $parent->getLanguage()->getId())
-                            //     ->setParameter('thread', $parent->getThread()->getId())
-                            //     ->setParameter('thread_order', $threadOrder);
-                            // $qb->getQuery()->execute();
+                            $qb = $this->em->getRepository('Newscoop\Entity\Comment')->createQueryBuilder('c');
+                            $qb->update()
+                                ->set('c.thread_order',  'c.thread_order+1')
+                                ->andwhere('c.thread_order >= :thread_order')
+                                ->andWhere('c.thread = :thread')
+                                ->andWhere('c.language = :language')
+                                ->setParameter('language', $comment->getLanguage()->getId())
+                                ->setParameter('thread', $comment->getThread()->getId())
+                                ->setParameter('thread_order', $threadOrder);
+                            $qb->getQuery()->execute();
 
-                            // // set the thread level the thread level of the parent plus one the current level
+                            // set the thread level the thread level of the parent plus one the current level
                             $threadLevel = $parent->getThreadLevel();
                             $threadLevel += 1;
                         }
@@ -150,6 +133,7 @@ class CommentListener
                             ->setParameter('language', $comment->getLanguage()->getId())
                             ->getQuery()
                             ->getSingleScalarResult();
+
                         // increase by one of the current comment
                         $threadOrder += 1;
                     }
@@ -182,7 +166,6 @@ class CommentListener
 
 
                 $parameters = $request->request;
-                var_dump($parameters);
             }
 
         }
