@@ -1,5 +1,6 @@
 {
     "name": "terwey/plugin-newscoop-comments",
+    "description": "Newscoop Comments refactored with Symfony Forms",
     "license": "GPL-3.0",
     "type": "newscoop-plugin",
     "authors": [
