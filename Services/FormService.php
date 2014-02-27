@@ -122,7 +122,9 @@ class FormService implements FormServiceInterface
         }
 
         if (in_array('content', $parameters) || in_array('message', $parameters)) {
-            $this->form->add('message', 'textarea');
+            $this->form->add('message', 'textarea', array(
+                "required" => true
+            ));
         }
 
         if (in_array('name', $parameters) || in_array('email', $parameters) ||  in_array('url', $parameters)) {
@@ -130,10 +132,14 @@ class FormService implements FormServiceInterface
             
             if (!$this->hasUser) {
                 if (in_array('name', $parameters)) {
-                    $this->form->get('commenter')->add('name', 'text');
+                    $this->form->get('commenter')->add('name', 'text', array(
+                        "required" => true
+                    ));
                 }
                 if (in_array('email', $parameters)) {
-                    $this->form->get('commenter')->add('email', 'email');
+                    $this->form->get('commenter')->add('email', 'email', array(
+                        "required" => true
+                    ));
                 }
                 if (in_array('url', $parameters)) {
                     $this->form->get('commenter')->add('url', 'url');
@@ -231,6 +237,11 @@ class FormService implements FormServiceInterface
     public function getFormObject()
     {
         return $this->form;
+    }
+
+    public function getData()
+    {
+        return $this->form->getData();
     }
 
     public function isValid()
