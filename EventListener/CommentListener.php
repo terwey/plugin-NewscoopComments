@@ -80,8 +80,8 @@ class CommentListener
                         }
                     }
 
-                    if (array_key_exists('commentparent', $request->get('commentForm')) && $request->get('commentForm')['commentparent'] != '') {
-                        $parent = $this->em->getRepository('Newscoop\Entity\Comment')->findOneById(intval($request->get('commentForm')['commentparent']));
+                    if (array_key_exists('commentparent', $commentForm) && $commentForm['commentparent'] != '') {
+                        $parent = $this->em->getRepository('Newscoop\Entity\Comment')->findOneById(intval($commentForm['commentparent']));
                         if ($parent instanceof \Newscoop\Entity\Comment) {
                             $comment->setParent($parent);
                             

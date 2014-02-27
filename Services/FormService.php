@@ -76,7 +76,8 @@ class FormService implements FormServiceInterface
         }
 
         // var_dump($request);
-        $publicationId = $request->get('_newscoop_publication_metadata')['alias']['publication_id'];
+        $publicationMetaData = $request->get('_newscoop_publication_metadata');
+        $publicationId = $publicationMetaData['alias']['publication_id'];
         $publication = $this->em->getRepository('Newscoop\Entity\Publication')->findOneBy(array('id'=>$publicationId));
         $articleMetadata = $request->get('_newscoop_article_metadata');
 
