@@ -1,17 +1,23 @@
 <?php
 /**
- * @package Facebook Meta Plugin
+ * @package Newscoop Comments Bundle
  * @author Yorick Terweijden <yorick.terweijden@sourcefabric.org>
- * @copyright 2013 Sourcefabric o.p.s.
+ * @copyright 2014 Sourcefabric o.p.s.
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
 /**
- * Newscoop facebook_meta block plugin
+ * Newscoop Comments Bundle form block plugin
  *
  * Type:     block
- * Name:     facebook_meta
- * Purpose:  Generates the Facebook Meta information for a page
+ * Name:     form_builder
+ * Purpose:  Creates and gives access to a Symfony2 Form for the purpose of
+ *           posting a comment.
+ *
+ * @example <pre>
+ * {{ form_builder type="comment" fields=["content", "subject", "commentparent", "name", "email"] }}
+ * {{ /form_builder }}
+ * </pre>
  *
  * @param string
  *     $params
@@ -23,7 +29,7 @@
  * @return
  *
  */
-function smarty_block_comment2_form($params, $content, &$smarty, &$repeat)
+function smarty_block_form_builder($params, $content, &$smarty, &$repeat)
 {
 
     $html = '';
@@ -40,7 +46,7 @@ function smarty_block_comment2_form($params, $content, &$smarty, &$repeat)
             if ($request->getMethod() == 'POST') {
                 $formService->config($params['fields'], $request);
                 if (!$formService->isValid()) {
-                    var_dump($formService->getErrors());
+                    print ladybug_dump($formService->getErrors());
                 }
             } else {
                 $formService->config($params['fields'], $request);

@@ -17,7 +17,8 @@ class IPIsAllowedValidator extends ConstraintValidator
     public function validate($value, Constraint $constraint)
     {
         $request = \Zend_Registry::get('container')->getService('request');
-        $publicationId = $request->get('_newscoop_publication_metadata')['alias']['publication_id'];
+        $publicationMetaData = $request->get('_newscoop_publication_metadata');
+        $publicationId = $publicationMetaData['alias']['publication_id'];
         $publication = $this->em->getRepository('Newscoop\Entity\Publication')->findOneBy(array('id'=>$publicationId));
 
         $acceptanceRepository = $this->em->getRepository('Newscoop\Entity\Comment\Acceptance');
