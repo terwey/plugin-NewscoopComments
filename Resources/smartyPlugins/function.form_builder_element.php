@@ -1,15 +1,15 @@
 <?php
 
 /**
- * comment2_form_element
+ * form_builder_element
  * Smarty Plugin for creating a Form Element
  * 
  * @example <pre>
- * {{ comment2_form_element element="commentparent" options=["value"=>"41"] }}
- * {{ comment2_form_element element="name" options=['label'=>'name'] }}
- * {{ comment2_form_element element="email" options=['label'=>'email'] }}
- * {{ comment2_form_element element="subject" options=['label'=>'subject'] }}
- * {{ comment2_form_element element="content" options=['label'=>'content'] }}
+ * {{ form_builder_element element="commentparent" options=["value"=>"41"] }}
+ * {{ form_builder_element element="name" options=['label'=>'name'] }}
+ * {{ form_builder_element element="email" options=['label'=>'email'] }}
+ * {{ form_builder_element element="subject" options=['label'=>'subject'] }}
+ * {{ form_builder_element element="content" options=['label'=>'content'] }}
  * </pre>
  *
  * @param array $p_params
@@ -17,7 +17,7 @@
  *
  * @return string HTML form element
  */
-function smarty_function_comment2_form_element($p_params = array(), &$p_smarty)
+function smarty_function_form_builder_element($p_params = array(), &$p_smarty)
 {
     $formService = \Zend_Registry::get('container')->getService('newscoop_comments.form.service');
     $allowedElements = array('content', 'subject', 'save', 'name', 'email', 'url', 'spam_protect', 'recaptcha', 'captcha', 'commentparent');

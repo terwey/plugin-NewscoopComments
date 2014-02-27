@@ -10,13 +10,13 @@
  * Newscoop Comments Bundle form block plugin
  *
  * Type:     block
- * Name:     comment2_form
+ * Name:     form_builder
  * Purpose:  Creates and gives access to a Symfony2 Form for the purpose of
  *           posting a comment.
  *
  * @example <pre>
- * {{ comment2_form type="comment" fields=["content", "subject", "commentparent", "name", "email"] }}
- * {{ /comment2_form }}
+ * {{ form_builder type="comment" fields=["content", "subject", "commentparent", "name", "email"] }}
+ * {{ /form_builder }}
  * </pre>
  *
  * @param string
@@ -29,7 +29,7 @@
  * @return
  *
  */
-function smarty_block_comment2_form($params, $content, &$smarty, &$repeat)
+function smarty_block_form_builder($params, $content, &$smarty, &$repeat)
 {
 
     $html = '';
