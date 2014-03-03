@@ -45,8 +45,16 @@ function smarty_block_form_builder($params, $content, &$smarty, &$repeat)
             $formService = \Zend_Registry::get('container')->getService('newscoop_comments.form.service');
             if ($request->getMethod() == 'POST') {
                 $formService->config($params['fields'], $request);
+                $smarty->assign('formIsValid', $formService->isValid());
                 if (!$formService->isValid()) {
-                    print ladybug_dump($formService->getErrors());
+                    $formErrors = $formService->getErrors();
+                    if (count($formErrors) > 0) {
+                        $errors = array();
+                        foreach ($formErrors as $error) {
+                            $errors[] = $error->getMessage();
+                        }
+                        $smarty->assign('formErrors', $errors);
+                    }
                 }
             } else {
                 $formService->config($params['fields'], $request);
@@ -63,9 +71,7 @@ function smarty_block_form_builder($params, $content, &$smarty, &$repeat)
     if ($context->article->defined) {
         if (!$repeat) {
             $formService = \Zend_Registry::get('container')->getService('newscoop_comments.form.service');
-            if ($formService->isValid()) {
-                return 'This form has been posted. Whut up yo?!';
-            } else {
+            if (!$formService->isValid()) {
                 if (isset($content)) {
                     $html .= $content;
                 }

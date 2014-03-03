@@ -50,10 +50,8 @@ class CommentListener
 
                 $formService = \Zend_Registry::get('container')->getService('newscoop_comments.form.service');
                 $formService->config($commentFormFields, $request);
-                $form = $formService->getFormObject();
-
-                if ($form->isValid()) {
-                    $comment = $form->getData();
+                if ($formService->isValid()) {
+                    $comment = $formService->getData();
 
                     $threadLevel = 0;
                     $threadOrder = 0;
@@ -160,7 +158,7 @@ class CommentListener
                     $this->em->persist($comment);
                     $this->em->flush();
                 } else {
-                    var_dump($form->getErrors());
+                    var_dump($formService->getErrors());
                     var_dump('Form is invalid!');
                 }
 
