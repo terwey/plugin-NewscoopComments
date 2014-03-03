@@ -82,9 +82,16 @@ class FormService implements FormServiceInterface
 
         $comment = new Comment();
         $comment->setForum($this->em->getRepository('Newscoop\Entity\Publication')->findOneBy(array('id'=>$publicationId)));
-        $comment->setThread($this->em->getRepository('Newscoop\Entity\Article')->getArticle($articleMetadata['id'], $articleMetadata['language_id'])->getOneOrNullResult());
+        $thread = $this->em->getRepository('Newscoop\Entity\Article')->getArticle($articleMetadata['id'], $articleMetadata['language_id'])->getOneOrNullResult();
+        if ($thread) {
+            $comment->setThread($thread);
+        }
+
         $comment->setIp($this->request->getClientIp());
-        $comment->setLanguage($this->em->getRepository('Newscoop\Entity\Language')->findOneBy(array('id'=>$articleMetadata['language_id'])));
+        $language = $this->em->getRepository('Newscoop\Entity\Language')->findOneBy(array('id'=>$articleMetadata['language_id']));
+        if ($language) {
+            $comment->setLanguage($language);
+        }
 
         if (!is_null($user)) {
             $commenterRepository = $this->em->getRepository('Newscoop\Entity\Comment\Commenter');
