@@ -35,6 +35,9 @@ function smarty_block_form_builder($params, $content, &$smarty, &$repeat)
     $html = '';
     $smarty->smarty->loadPlugin('smarty_shared_escape_special_chars');
     $context = $smarty->getTemplateVars('gimme');
+    if (is_null($context->article->number)) {
+        return '';
+    }    
 
     $request = \Zend_Registry::get('container')->getService('request');
 

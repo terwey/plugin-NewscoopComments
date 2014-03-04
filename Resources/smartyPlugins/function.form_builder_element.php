@@ -12,19 +12,23 @@
  * {{ form_builder_element element="content" options=['label'=>'content'] }}
  * </pre>
  *
- * @param array $p_params
- * @param Smarty $p_smarty
+ * @param array $params
+ * @param Smarty $smarty
  *
  * @return string HTML form element
  */
-function smarty_function_form_builder_element($p_params = array(), &$p_smarty)
+function smarty_function_form_builder_element($params = array(), &$smarty)
 {
-    $formService = \Zend_Registry::get('container')->getService('newscoop_comments.form.service');
-    $allowedElements = array('content', 'subject', 'save', 'name', 'email', 'url', 'spam_protect', 'recaptcha', 'captcha', 'commentparent');
+	$context = $smarty->getTemplateVars('gimme');
+	if (!is_null($context->article->number)) {
+	    $formService = \Zend_Registry::get('container')->getService('newscoop_comments.form.service');
+	    $allowedElements = array('content', 'subject', 'save', 'name', 'email', 'url', 'spam_protect', 'recaptcha', 'captcha', 'commentparent');
 
-    $element = (in_array($p_params['element'], $allowedElements)) ? $p_params['element'] : null;
-    $optionParameters = (!empty($p_params['options'])) ? $p_params['options'] : null;
-    // var_dump($formService);
+	    $element = (in_array($params['element'], $allowedElements)) ? $params['element'] : null;
+	    $optionParameters = (!empty($params['options'])) ? $params['options'] : null;
 
-    return (!empty($element)) ? $formService->getElement($element, $optionParameters) : '';
+	    return (!empty($element)) ? $formService->getElement($element, $optionParameters) : '';
+	} else {
+		return '';
+	}
 }
