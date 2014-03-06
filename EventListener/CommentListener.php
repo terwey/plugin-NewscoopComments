@@ -21,16 +21,15 @@ class CommentListener
     public function __construct($logger, $em)
     {
         $this->log = $logger;
-        $this->log->info('Comment!');
         $this->em = $em;
     }
 
     public function onCommentSubmit(GetResponseEvent $event)
     {
-        $this->log->info('onCommentSubmit got fired!');
         $request = $event->getRequest();
 
-        if ($request->getMethod() == 'POST') {
+        if ($request->getMethod() == 'POST' && $request->get('commentForm')) {
+            $this->log->info('onCommentSubmit sees a POST and commentForm');
             // get the field names
             $commentForm = $request->get('commentForm');
             if (is_array($commentForm)) {
